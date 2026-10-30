@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>대덕부동산 정산유틸</title>
+<meta name="theme-color" content="#2563EB">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="정산유틸">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="root"></div>
+<script>window.__ddkHash0 = location.hash;</script>
+<script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    // 예전 버전이 남아 있던 폰(다른 브라우저·오래 안 연 앱)에서 새 버전이 받아지면 한 번만 다시 열어 바로 최신으로
+    var hadSW = !!navigator.serviceWorker.controller, firstHash = window.__ddkHash0 || '', reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!hadSW || reloaded) return; reloaded = true;
+      try { if (firstHash && !location.hash) history.replaceState(null, '', location.pathname + location.search + firstHash); } catch (e) {}
+      location.reload();
+    });
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (r) { try { r.update(); } catch (e) {} }).catch(function (e) { console.warn('SW 등록 실패', e); });
+    });
+  }
+</script>
+</body>
+</html>
