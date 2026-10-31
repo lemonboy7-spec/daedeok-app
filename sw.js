@@ -1,4 +1,4 @@
-const CACHE = 'daedeok-settlement-v121';
+const CACHE = 'daedeok-settlement-v122';
 const ASSETS = ['./', './index.html', './app.js', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -55,12 +55,23 @@ self.addEventListener('push', (e) => {
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((cs) => {
     const vis = cs.find((c) => c.visibilityState === 'visible' && c.focused);
     if (vis && d.kind !== 'test') { vis.postMessage({ ddkPush: d }); return; } // 앱을 보고 있으면 앱 안에서 표시 (시험 알림은 항상 띄움)
+    // v7.15: 도우미가 보낸 통화 내용이 서버에 도착 → 앱을 닫아 둬도 알림 (아이콘에 표시)
+    if (d.kind === 'call') return self.registration.showNotification(d.title || '통화 내용 도착', { body: d.body || '', tag: 'ddk-push-call-' + (d.id || Date.now()), icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', vibrate: [80], data: { open: 'calls' } });
     return self.registration.showNotification(title, { body: d.body || '', tag: 'chat-' + room, renotify: true, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', vibrate: [120, 60, 120], data: { room } });
   }));
 });
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
   const room = (e.notification.data && e.notification.data.room) || '';
+  const open = (e.notification.data && e.notification.data.open) || '';
+  if (open === 'calls' || open === 'req') { // v7.15: 걸려 온 전화·요청 알림 → 그 화면으로
+    e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((cs) => {
+      const c = cs[0];
+      if (c) { c.postMessage({ ddkOpen: open }); return c.focus(); }
+      return self.clients.openWindow('./?open=' + open);
+    }));
+    return;
+  }
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((cs) => {
     const c = cs[0];
     if (c) { c.postMessage({ ddkOpenChat: room }); return c.focus(); }
