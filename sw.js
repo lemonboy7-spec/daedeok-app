@@ -1,4 +1,4 @@
-const CACHE = 'daedeok-settlement-v134';
+const CACHE = 'daedeok-settlement-v136';
 const ASSETS = ['./', './index.html', './app.js', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>매물 사진</title>
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--ink:#1e293b;--sub:#64748b}
+@media (prefers-color-scheme:dark){:root{--bg:#0f172a;--card:#1e293b;--ink:#e2e8f0;--sub:#94a3b8}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+main{max-width:720px;margin:0 auto;padding:18px 14px 40px}
+h1{font-size:20px;margin:4px 2px 14px}
+img{display:block;width:100%;height:auto;border-radius:14px;margin:0 0 12px;background:var(--card)}
+.m{color:var(--sub);font-size:14px;text-align:center;margin-top:18px}
+.ld{color:var(--sub);text-align:center;padding:60px 0}
+</style></head><body><main id="m"><div class="ld">사진을 불러오는 중…</div></main>
+<script>
+(function(){
+  var q = new URLSearchParams(location.search), k = q.get('k') || '', s = q.get('s') || '', m = document.getElementById('m');
+  var esc = function(t){ return String(t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+  var msg = function(h, p){ m.innerHTML = '<h1>' + h + '</h1>' + (p ? '<p class="m">' + p + '</p>' : ''); };
+  if (!/^[A-Za-z0-9_-]{10,}$/.test(k) || !/^[A-Z0-9]{24}$/.test(s)) { msg('링크가 맞지 않습니다'); return; }
+  var url = 'https://script.google.com/macros/s/' + k + '/exec?sj=' + s;
+  fetch(url).then(function(r){ return r.json(); }).then(function(d){
+    if (!d || !d.ok) { if (d && d.error === 'expired') msg('사진 보기 기간이 지났습니다', '보내 준 부동산에 다시 요청해 주세요.'); else if (d && d.error === 'stopped') msg('보내 준 쪽에서 링크를 닫았습니다'); else msg('링크가 맞지 않습니다'); return; }
+    document.title = d.title || '매물 사진';
+    var h = '<h1>' + esc(d.title || '매물 사진') + '</h1>';
+    (d.photos || []).forEach(function(p){ if (/^data:image\/(jpeg|png|webp);base64,/.test(p)) h += '<img alt="매물 사진" src="' + p + '">'; });
+    if (!(d.photos || []).length) h += '<p class="m">사진이 없습니다.</p>';
+    h += '<p class="m">' + esc(d.until || '') + '까지 볼 수 있어요.</p>';
+    m.innerHTML = h;
+  }).catch(function(){ location.replace('https://script.google.com/macros/s/' + k + '/exec?s=' + s); });
+})();
+</script></body></html>
