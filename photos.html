@@ -11,6 +11,18 @@ h1{font-size:20px;margin:4px 2px 14px}
 img{display:block;width:100%;height:auto;border-radius:14px;margin:0 0 12px;background:var(--card)}
 .m{color:var(--sub);font-size:14px;text-align:center;margin-top:18px}
 .ld{color:var(--sub);text-align:center;padding:60px 0}
+.box{background:var(--card);border-radius:14px;padding:12px 14px;margin:0 0 12px;white-space:pre-wrap;word-break:keep-all}
+.g{display:grid;gap:8px;margin:0 0 12px}.g img{margin:0;cursor:zoom-in}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2 img,.g3 img{aspect-ratio:1/1;object-fit:cover;height:100%}
+.card{background:var(--card);border-radius:14px;padding:14px 16px;margin:18px 0 12px;border-left:5px solid #059669}
+.card b{display:block;font-size:17px}.card .s{color:var(--sub);font-size:14px}
+.card a{color:inherit}.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.btn{display:inline-block;padding:8px 14px;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none}
+.k{background:#fee500;color:#191600}.n{background:#03c75a;color:#fff}.t{background:#059669;color:#fff}
+.map{background:var(--card);border-radius:14px;padding:12px 14px;margin:0 0 12px}.map img{margin:6px 0 8px}
+#zv{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:9}
+#zv img{max-width:100%;max-height:100%;width:auto;border-radius:0;margin:0}
 </style></head><body><main id="m"><div class="ld">사진을 불러오는 중…</div></main>
 <script>
 (function(){
@@ -22,11 +34,32 @@ img{display:block;width:100%;height:auto;border-radius:14px;margin:0 0 12px;back
   fetch(url).then(function(r){ return r.json(); }).then(function(d){
     if (!d || !d.ok) { if (d && d.error === 'expired') msg('사진 보기 기간이 지났습니다', '보내 준 부동산에 다시 요청해 주세요.'); else if (d && d.error === 'stopped') msg('보내 준 쪽에서 링크를 닫았습니다'); else msg('링크가 맞지 않습니다'); return; }
     document.title = d.title || '매물 사진';
+    var L = (d.look && typeof d.look === 'object') ? d.look : {}, ok = function(p){ return /^data:image\/(jpeg|png|webp);base64,/.test(String(p || '')); };
     var h = '<h1>' + esc(d.title || '매물 사진') + '</h1>';
-    (d.photos || []).forEach(function(p){ if (/^data:image\/(jpeg|png|webp);base64,/.test(p)) h += '<img alt="매물 사진" src="' + p + '">'; });
-    if (!(d.photos || []).length) h += '<p class="m">사진이 없습니다.</p>';
+    if (L.top) h += '<div class="box">' + esc(L.top) + '</div>';
+    var g = L.size === 's' ? 'g g3' : L.size === 'm' ? 'g g2' : 'g', ph = (d.photos || []).filter(ok);
+    if (ph.length) { h += '<div class="' + g + '">'; ph.forEach(function(p){ h += '<img alt="매물 사진" src="' + p + '">'; }); h += '</div>'; }
+    else h += '<p class="m">사진이 없습니다.</p>';
+    if (L.bottom) h += '<div class="box">' + esc(L.bottom) + '</div>';
+    var C = L.card;
+    if (C && typeof C === 'object') {
+      var tel = String(C.phone || '').replace(/[^0-9]/g, ''), ot = String(C.office || '').replace(/[^0-9]/g, '');
+      h += '<div class="card">' + (C.company ? '<b>' + esc(C.company) + '</b>' : '') + ((C.name || C.title) ? '<div>' + esc([C.name, C.title].filter(Boolean).join(' · ')) + '</div>' : '')
+        + (C.phone ? '<div>휴대폰 ' + esc(C.phone) + '</div>' : '') + (C.office ? '<div>사무실 ' + esc(C.office) + '</div>' : '') + (C.addr ? '<div class="s">' + esc(C.addr) + '</div>' : '') + (C.line ? '<div class="s">' + esc(C.line) + '</div>' : '')
+        + ((tel || ot) ? '<div class="btns">' + (tel ? '<a class="btn t" href="tel:' + tel + '">전화하기</a><a class="btn t" href="sms:' + tel + '">문자</a>' : '<a class="btn t" href="tel:' + ot + '">전화하기</a>') + '</div>' : '') + '</div>';
+    }
+    var M = L.map;
+    if (M && typeof M === 'object' && (M.img || M.addr)) {
+      var q2 = encodeURIComponent(String(M.addr || ''));
+      h += '<div class="map"><b>찾아오시는 길</b>' + (ok(M.img) ? '<img alt="약도" src="' + M.img + '">' : '') + (M.addr ? '<div class="s">' + esc(M.addr) + '</div><div class="btns"><a class="btn k" target="_blank" rel="noopener" href="https://map.kakao.com/link/search/' + q2 + '">카카오맵</a><a class="btn n" target="_blank" rel="noopener" href="https://map.naver.com/p/search/' + q2 + '">네이버 지도</a></div>' : '') + '</div>';
+    }
     h += '<p class="m">' + esc(d.until || '') + '까지 볼 수 있어요.</p>';
     m.innerHTML = h;
+    if (L.size === 's' || L.size === 'm') {
+      var zv = document.createElement('div'); zv.id = 'zv'; zv.innerHTML = '<img alt="크게 보기">'; document.body.appendChild(zv);
+      zv.onclick = function(){ zv.style.display = 'none'; };
+      Array.prototype.forEach.call(m.querySelectorAll('.g img'), function(im){ im.onclick = function(){ zv.firstChild.src = im.src; zv.style.display = 'flex'; }; });
+    }
   }).catch(function(){ location.replace('https://script.google.com/macros/s/' + k + '/exec?s=' + s); });
 })();
 </script></body></html>
