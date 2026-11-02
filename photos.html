@@ -32,7 +32,10 @@ img{display:block;width:100%;height:auto;border-radius:14px;margin:0 0 12px;back
   if (!/^[A-Za-z0-9_-]{10,}$/.test(k) || !/^[A-Z0-9]{24}$/.test(s)) { msg('링크가 맞지 않습니다'); return; }
   var url = 'https://script.google.com/macros/s/' + k + '/exec?sj=' + s;
   fetch(url).then(function(r){ return r.json(); }).then(function(d){
+    if (d && d.ok && !Array.isArray(d.photos)) { location.replace('https://script.google.com/macros/s/' + k + '/exec?s=' + s); return; } // 예전 서버(v22 이하): 서버 보기 화면으로
     if (!d || !d.ok) { if (d && d.error === 'expired') msg('사진 보기 기간이 지났습니다', '보내 준 부동산에 다시 요청해 주세요.'); else if (d && d.error === 'stopped') msg('보내 준 쪽에서 링크를 닫았습니다'); else msg('링크가 맞지 않습니다'); return; }
+    // v7.29.1 서버가 v23보다 예전이면 ?sj= 를 몰라서 사진 없이 {ok:true} 만 줌 → 예전 보기 화면(?s=)으로
+    if (!Array.isArray(d.photos)) { location.replace('https://script.google.com/macros/s/' + k + '/exec?s=' + s); return; }
     document.title = d.title || '매물 사진';
     var L = (d.look && typeof d.look === 'object') ? d.look : {}, ok = function(p){ return /^data:image\/(jpeg|png|webp);base64,/.test(String(p || '')); };
     var h = '<h1>' + esc(d.title || '매물 사진') + '</h1>';
