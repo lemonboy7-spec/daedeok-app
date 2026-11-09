@@ -1,7 +1,8 @@
-const CACHE = 'daedeok-settlement-v7.89.0';
+const CACHE = 'daedeok-settlement-v1.0.0';
 const ASSETS = ['./', './index.html', './app.js', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  // v7.90 새 버전 파일은 브라우저 캐시를 건너뛰고 꼭 새로 받음
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS.map((u) => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
@@ -36,10 +37,22 @@ self.addEventListener('fetch', (e) => {
     return Response.redirect(new URL('./index.html?share=1', self.registration.scope).href, 303);
   })());
 });
+// v7.90 앱 첫 화면 빠르게: 앱 파일(index·app.js·styles·아이콘)은 이 버전 상자에서 바로 꺼냄 (3MB를 매번 다시 받지 않음)
+//  · 새 버전이 올라오면 sw.js가 바뀜 → 새 상자를 받아 둔 뒤 앱이 한 번 다시 열림(index.html의 controllerchange) → 새 버전
+//  · 그 밖의 파일(photos.html 등)은 전처럼 인터넷 먼저, 안 되면 상자
+const SHELL = new Set(['/', '/index.html', '/app.js', '/styles.css', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png']);
+const scopePath = () => new URL(self.registration.scope).pathname.replace(/\/$/, '');
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
   if (url.origin !== location.origin) return;
+  const rel = url.pathname.slice(scopePath().length) || '/';
+  const isNav = e.request.mode === 'navigate';
+  if (isNav || SHELL.has(rel)) {
+    const key = isNav ? './index.html' : '.' + rel;
+    e.respondWith(caches.open(CACHE).then((c) => c.match(key, { ignoreSearch: true }).then((hit) => hit || fetch(e.request).then((res) => { if (res && res.ok && !isNav) c.put(key, res.clone()); return res; }).catch(() => c.match('./index.html')))));
+    return;
+  }
   e.respondWith(
     fetch(e.request).then((res) => { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(e.request, copy)); return res; })
       .catch(() => caches.match(e.request).then((r) => r || caches.match('./index.html')))

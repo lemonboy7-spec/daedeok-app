@@ -23,11 +23,34 @@ img{display:block;width:100%;height:auto;border-radius:14px;margin:0 0 12px;back
 .map{background:var(--card);border-radius:14px;padding:12px 14px;margin:0 0 12px}.map img{margin:6px 0 8px}
 #zv{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:9}
 #zv img{max-width:100%;max-height:100%;width:auto;border-radius:0;margin:0}
+/* v7.90 테마 (링크 끝 _테마-색) */
+:root{--ac:#2563eb}
+body.th-portal{--bg:#fff;--card:#fff;--ink:#1a1a1a;--sub:#666;font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+body.th-portal h1{font-weight:800;padding-bottom:10px;border-bottom:1px solid #e6e6e6}
+body.th-portal img{border-radius:4px}body.th-portal .box,body.th-portal .card,body.th-portal .map{border:1px solid #e6e6e6;border-radius:6px}body.th-portal .card{border-left:5px solid var(--ac)}
+body.th-photo{--bg:#0f172a;--card:#1e293b;--ink:#f1f5f9;--sub:#94a3b8}
+.hero{position:relative;margin:0 0 12px}.hero img{margin:0;border-radius:16px}.hero .cap{position:absolute;left:0;right:0;bottom:0;padding:48px 16px 14px;border-radius:0 0 16px 16px;background:linear-gradient(to top,rgba(0,0,0,.72),transparent);color:#fff}.hero .cap b{display:block;font-size:22px;font-weight:800;line-height:1.3;word-break:keep-all}
+body.th-kakao{--bg:#fff;--card:#f5f5f5;--ink:#1a1a1a;--sub:#555}
+.band{background:var(--ac);color:#fff;font-weight:800;font-size:16px;padding:14px 16px;margin:-18px -14px 14px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+body.th-kakao h1{color:var(--ac);font-size:24px;font-weight:900}body.th-kakao .g{gap:6px}body.th-kakao .card{border-left-color:var(--ac)}body.th-kakao .t,body.th-portal .t{background:var(--ac)}
+body.th-magazine{--bg:#111;--card:#1b1b1b;--ink:#e8dcc0;--sub:#b8ac8f;font-family:"Noto Serif KR","Nanum Myeongjo",serif}
+body.th-magazine h1{font-weight:600;letter-spacing:.02em;padding-bottom:12px;border-bottom:1px solid #b39b6b;color:#f5e7b8}
+body.th-magazine img{border-radius:0;padding:8px;background:#fff}body.th-magazine .g img{padding:5px}
+body.th-magazine .box,body.th-magazine .map{border:1px solid #3a3326;border-radius:2px}body.th-magazine .card{border-radius:2px;border-left:3px solid #b39b6b}
+body.th-magazine .t{background:#b39b6b;color:#111}
+body.th-blog{--bg:#f8fafc;--card:#fff;--ink:#0f172a;--sub:#64748b}
+body.th-blog h1{background:var(--ac);color:#fff;border-radius:16px;padding:18px 18px;font-size:24px;font-weight:900;word-break:keep-all;margin-left:0;margin-right:0}
+body.th-blog .card{border-left-color:var(--ac)}body.th-blog .t{background:var(--ac)}
+body.th-featured{--bg:#fff;--card:#f8fafc;--ink:#111827;--sub:#6b7280}
+.ribbon{display:inline-block;background:var(--ac);color:#fff;font-weight:700;font-size:13px;padding:4px 10px;border-radius:6px;margin:2px 2px 0}
+body.th-featured img{aspect-ratio:16/9;object-fit:cover}body.th-featured .g2 img,body.th-featured .g3 img{aspect-ratio:1/1}body.th-featured .card{border-left-color:var(--ac)}body.th-featured .t{background:var(--ac)}
 </style></head><body><main id="m"><div class="ld">사진을 불러오는 중…</div></main>
 <script>
 (function(){
   var q = new URLSearchParams(location.search), k = q.get('k') || '', s = q.get('s') || '', m = document.getElementById('m');
   var vv = q.get('v') || ''; if (vv && vv.lastIndexOf('.') > 0) { k = vv.slice(0, vv.lastIndexOf('.')); s = vv.slice(vv.lastIndexOf('.') + 1); } // v7.30.1 ?v=서버ID.토큰 (& 없는 링크)
+  var th = '', ac = ''; if (s.indexOf('_') > 0) { var tt = s.slice(s.indexOf('_') + 1); s = s.slice(0, s.indexOf('_')); var mt = /^([a-z]{3,12})(?:-([0-9a-fA-F]{6}))?$/.exec(tt); if (mt) { th = mt[1]; ac = mt[2] || ''; } } // v7.90 테마
+  if (/^(portal|photo|kakao|magazine|blog|featured)$/.test(th)) { document.body.className = 'th-' + th; if (ac) document.documentElement.style.setProperty('--ac', '#' + ac); }
   var esc = function(t){ return String(t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
   var msg = function(h, p){ m.innerHTML = '<h1>' + h + '</h1>' + (p ? '<p class="m">' + p + '</p>' : ''); };
   if (/^[A-Za-z0-9_-]{10,}$/.test(k) && !s) { msg('링크 끝부분이 잘렸습니다', '문자 앱이 링크를 잘라서 보냈어요. 보내 준 부동산에 다시 보내 달라고 해 주세요.'); return; }
@@ -40,11 +63,17 @@ img{display:block;width:100%;height:auto;border-radius:14px;margin:0 0 12px;back
     if (!Array.isArray(d.photos)) { location.replace('https://script.google.com/macros/s/' + k + '/exec?s=' + s); return; }
     document.title = d.title || '매물 사진';
     var L = (d.look && typeof d.look === 'object') ? d.look : {}, ok = function(p){ return /^data:image\/(jpeg|png|webp);base64,/.test(String(p || '')); };
-    var h = '<h1>' + esc(d.title || '매물 사진') + '</h1>';
+    var C0 = (L.card && typeof L.card === 'object') ? L.card : null;
+    var h = '';
+    if (th === 'kakao') h += '<div class="band"><span>' + esc((C0 && (C0.company || C0.name)) || '매물 안내') + '</span>' + (C0 && C0.phone ? '<span>' + esc(C0.phone) + '</span>' : '') + '</div>';
+    if (th === 'featured') h += '<span class="ribbon">추천 매물</span>';
+    if (th !== 'photo') h += '<h1>' + esc(d.title || '매물 사진') + '</h1>';
     if (L.top) h += '<div class="box">' + esc(L.top) + '</div>';
     var g = L.size === 's' ? 'g g3' : L.size === 'm' ? 'g g2' : 'g', ph = (d.photos || []).filter(ok);
+    if (th === 'photo') { if (ph.length) { h = '<div class="hero"><img alt="매물 사진" src="' + ph[0] + '"><div class="cap"><b>' + esc(d.title || '매물 사진') + '</b></div></div>' + h; ph = ph.slice(1); } else h = '<h1>' + esc(d.title || '매물 사진') + '</h1>' + h; }
+    if (th === 'kakao' && L.size !== 's') g = 'g g2';
     if (ph.length) { h += '<div class="' + g + '">'; ph.forEach(function(p){ h += '<img alt="매물 사진" src="' + p + '">'; }); h += '</div>'; }
-    else h += '<p class="m">사진이 없습니다.</p>';
+    else if (!(th === 'photo' && (d.photos || []).filter(ok).length)) h += '<p class="m">사진이 없습니다.</p>';
     if (L.bottom) h += '<div class="box">' + esc(L.bottom) + '</div>';
     var C = L.card;
     if (C && typeof C === 'object') {
@@ -63,7 +92,7 @@ img{display:block;width:100%;height:auto;border-radius:14px;margin:0 0 12px;back
     if (L.size === 's' || L.size === 'm') {
       var zv = document.createElement('div'); zv.id = 'zv'; zv.innerHTML = '<img alt="크게 보기">'; document.body.appendChild(zv);
       zv.onclick = function(){ zv.style.display = 'none'; };
-      Array.prototype.forEach.call(m.querySelectorAll('.g img'), function(im){ im.onclick = function(){ zv.firstChild.src = im.src; zv.style.display = 'flex'; }; });
+      Array.prototype.forEach.call(m.querySelectorAll('.g img, .hero img'), function(im){ im.onclick = function(){ zv.firstChild.src = im.src; zv.style.display = 'flex'; }; });
     }
   }).catch(function(){ location.replace('https://script.google.com/macros/s/' + k + '/exec?s=' + s); });
 })();
