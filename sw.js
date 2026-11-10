@@ -1,4 +1,4 @@
-const CACHE = 'daedeok-settlement-v1.0.0';
+const CACHE = 'daedeok-settlement-v1.0.0-b11100910';
 const ASSETS = ['./', './index.html', './app.js', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', (e) => {
   // v7.90 새 버전 파일은 브라우저 캐시를 건너뛰고 꼭 새로 받음
