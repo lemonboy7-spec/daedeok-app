@@ -25,7 +25,7 @@
 <script>(function(){try{var b=JSON.parse(localStorage.getItem('daedeokBoot_v1')||'null');if(!b)return;var e=document.getElementById('ddk-boot');if(b.bg)e.style.background=b.bg;if(b.fg)e.style.color=b.fg;if(b.title)document.getElementById('ddk-boot-t').textContent=b.title;if(b.sub)document.getElementById('ddk-boot-s').textContent=b.sub;if(b.font)e.style.fontFamily=b.font+',system-ui,sans-serif';}catch(x){}})();</script>
 <div id="root"></div>
 <script>window.__ddkHash0 = location.hash;</script>
-<script src="app.js"></script>
+<script type="module" src="js/main.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
     // 예전 버전이 남아 있던 폰(다른 브라우저·오래 안 연 앱)에서 새 버전이 받아지면 한 번만 다시 열어 바로 최신으로
@@ -36,7 +36,7 @@
       location.reload();
     });
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (r) { try { r.update(); } catch (e) {} }).catch(function (e) { console.warn('SW 등록 실패', e); });
+      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (r) { try { var u = r.update(); if (u && u.catch) u.catch(function () {}); } catch (e) {} }).catch(function (e) { console.warn('SW 등록 실패', e); });
     });
   }
 </script>

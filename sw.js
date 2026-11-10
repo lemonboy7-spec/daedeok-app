@@ -1,8 +1,19 @@
-const CACHE = 'daedeok-settlement-v1.0.0-b11100910';
-const ASSETS = ['./', './index.html', './app.js', './styles.css', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
+const CACHE = 'daedeok-settlement-v1.0.1-b11101049';
+const ASSETS = ["./", "./index.html", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./js/c/BrokerSeed-FBCJJJZM.js", "./js/c/Changelog-5WR2APLC.js", "./js/c/Map-72URQOIY.js", "./js/c/boot-W27SU4ZB.js", "./js/c/chunk-QKDLRO57.js", "./js/c/chunk-VRGQQFUN.js", "./js/c/chunk-WGSFSCDS.js", "./js/c/gifenc-7LOQE3CB.js", "./js/c/html2canvas-XK4SJWUG.js", "./js/main.js"];
 self.addEventListener('install', (e) => {
   // v7.90 새 버전 파일은 브라우저 캐시를 건너뛰고 꼭 새로 받음
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS.map((u) => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
+  // v1.0.1 이름에 지문(-ABCD1234)이 붙은 조각은 내용이 같으면 이름도 같음 → 예전 상자에 있으면 다시 받지 않고 옮겨 담음 (업데이트가 빨라짐)
+  e.waitUntil((async () => {
+    const c = await caches.open(CACHE);
+    const olds = (await caches.keys()).filter((k) => k !== CACHE && /^daedeok-settlement-/.test(k));
+    await Promise.all(ASSETS.map(async (u) => {
+      if (/\/js\/c\/.+-[A-Z0-9]{8}\.js$/i.test(u)) { for (const k of olds) { const hit = await (await caches.open(k)).match(u); if (hit) { await c.put(u, hit); return; } } }
+      const res = await fetch(new Request(u, { cache: 'reload' }));
+      if (!res || !res.ok) throw new Error('sw get ' + u);
+      await c.put(u, res);
+    }));
+    await self.skipWaiting();
+  })());
 });
 self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
@@ -37,10 +48,10 @@ self.addEventListener('fetch', (e) => {
     return Response.redirect(new URL('./index.html?share=1', self.registration.scope).href, 303);
   })());
 });
-// v7.90 앱 첫 화면 빠르게: 앱 파일(index·app.js·styles·아이콘)은 이 버전 상자에서 바로 꺼냄 (3MB를 매번 다시 받지 않음)
+// v7.90 앱 첫 화면 빠르게: 앱 파일(index·js 조각·styles·아이콘)은 이 버전 상자에서 바로 꺼냄 (3MB를 매번 다시 받지 않음)
 //  · 새 버전이 올라오면 sw.js가 바뀜 → 새 상자를 받아 둔 뒤 앱이 한 번 다시 열림(index.html의 controllerchange) → 새 버전
 //  · 그 밖의 파일(photos.html 등)은 전처럼 인터넷 먼저, 안 되면 상자
-const SHELL = new Set(['/', '/index.html', '/app.js', '/styles.css', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png']);
+const SHELL = new Set(['/', '/index.html', '/styles.css', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png']); // v1.0.1 앱 조각(/js/…)도 상자에서
 const scopePath = () => new URL(self.registration.scope).pathname.replace(/\/$/, '');
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
@@ -48,7 +59,7 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== location.origin) return;
   const rel = url.pathname.slice(scopePath().length) || '/';
   const isNav = e.request.mode === 'navigate';
-  if (isNav || SHELL.has(rel)) {
+  if (isNav || SHELL.has(rel) || rel.startsWith('/js/')) {
     const key = isNav ? './index.html' : '.' + rel;
     e.respondWith(caches.open(CACHE).then((c) => c.match(key, { ignoreSearch: true }).then((hit) => hit || fetch(e.request).then((res) => { if (res && res.ok && !isNav) c.put(key, res.clone()); return res; }).catch(() => c.match('./index.html')))));
     return;
