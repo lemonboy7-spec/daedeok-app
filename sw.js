@@ -1,5 +1,5 @@
-const CACHE = 'daedeok-settlement-v1.5.1-b11122234';
-const ASSETS = ["./", "./index.html", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./js/c/BrokerSeed-FBCJJJZM.js", "./js/c/Changelog-FUYWD463.js", "./js/c/Map-YF4UR5FS.js", "./js/c/boot-AQZY44R6.js", "./js/c/chunk-7TTY7L4X.js", "./js/c/chunk-QKDLRO57.js", "./js/c/chunk-WGSFSCDS.js", "./js/c/gifenc-7LOQE3CB.js", "./js/c/html2canvas-XK4SJWUG.js", "./js/main.js"];
+const CACHE = 'daedeok-settlement-v1.5.2-b11122344';
+const ASSETS = ["./", "./index.html", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./js/c/BrokerSeed-FBCJJJZM.js", "./js/c/Changelog-3ZFA4HEP.js", "./js/c/Map-VK5722CP.js", "./js/c/boot-ICVP52NF.js", "./js/c/chunk-5ITOQK2M.js", "./js/c/chunk-QKDLRO57.js", "./js/c/chunk-WGSFSCDS.js", "./js/c/gifenc-7LOQE3CB.js", "./js/c/html2canvas-XK4SJWUG.js", "./js/main.js"];
 self.addEventListener('install', (e) => {
   // v7.90 새 버전 파일은 브라우저 캐시를 건너뛰고 꼭 새로 받음
   // v1.0.1 이름에 지문(-ABCD1234)이 붙은 조각은 내용이 같으면 이름도 같음 → 예전 상자에 있으면 다시 받지 않고 옮겨 담음 (업데이트가 빨라짐)
