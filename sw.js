@@ -1,5 +1,5 @@
-const CACHE = 'daedeok-settlement-v1.6.23-b11161703';
-const ASSETS = ["./", "./index.html", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./js/c/BrokerSeed-FBCJJJZM.js", "./js/c/Changelog-ZHP5WPVG.js", "./js/c/Map-CZ4QEXIT.js", "./js/c/boot-H32CPFWT.js", "./js/c/chunk-HZXJYADA.js", "./js/c/chunk-OBNNYIN2.js", "./js/c/chunk-QKDLRO57.js", "./js/c/chunk-WGSFSCDS.js", "./js/c/gifenc-7LOQE3CB.js", "./js/c/html2canvas-XK4SJWUG.js", "./js/main.js"];
+const CACHE = 'daedeok-settlement-v1.6.27-b11170619';
+const ASSETS = ["./", "./index.html", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./js/c/BrokerSeed-FBCJJJZM.js", "./js/c/Changelog-HIJVBNJX.js", "./js/c/Map-D7BMYMTJ.js", "./js/c/boot-AYAUYFKW.js", "./js/c/chunk-AQK33HZ2.js", "./js/c/chunk-P66GQD4A.js", "./js/c/chunk-TCTJN56Z.js", "./js/c/chunk-WGSFSCDS.js", "./js/c/gifenc-7LOQE3CB.js", "./js/c/html2canvas-XK4SJWUG.js", "./js/main.js"];
 self.addEventListener('install', (e) => {
   // v7.90 새 버전 파일은 브라우저 캐시를 건너뛰고 꼭 새로 받음
   // v1.0.1 이름에 지문(-ABCD1234)이 붙은 조각은 내용이 같으면 이름도 같음 → 예전 상자에 있으면 다시 받지 않고 옮겨 담음 (업데이트가 빨라짐)
@@ -74,7 +74,7 @@ self.addEventListener('fetch', (e) => {
 self.addEventListener('push', (e) => {
   let d = {};
   try { const j = e.data ? e.data.json() : {}; d = j.data || j.notification || j; } catch (err) { try { d = { body: e.data && e.data.text() }; } catch (e2) {} }
-  const title = d.title || '대덕부동산 채팅';
+  const title = d.title || '정산유틸 채팅';
   const room = d.room || '';
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((cs) => {
     const vis = cs.find((c) => c.visibilityState === 'visible' && c.focused);

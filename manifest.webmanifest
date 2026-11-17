@@ -1,5 +1,5 @@
 {
-  "name": "대덕부동산 정산유틸",
+  "name": "정산유틸",
   "short_name": "정산유틸",
   "description": "부동산 보증금 정산서 계산·영수증·인쇄",
   "start_url": "./index.html",
