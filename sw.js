@@ -1,5 +1,5 @@
-const CACHE = 'daedeok-settlement-v1.6.27-b11170619';
-const ASSETS = ["./", "./index.html", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./js/c/BrokerSeed-FBCJJJZM.js", "./js/c/Changelog-HIJVBNJX.js", "./js/c/Map-D7BMYMTJ.js", "./js/c/boot-AYAUYFKW.js", "./js/c/chunk-AQK33HZ2.js", "./js/c/chunk-P66GQD4A.js", "./js/c/chunk-TCTJN56Z.js", "./js/c/chunk-WGSFSCDS.js", "./js/c/gifenc-7LOQE3CB.js", "./js/c/html2canvas-XK4SJWUG.js", "./js/main.js"];
+const CACHE = 'daedeok-settlement-v1.6.29-b11180121';
+const ASSETS = ["./", "./index.html", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./js/c/BrokerSeed-FBCJJJZM.js", "./js/c/Changelog-TJHKCC2I.js", "./js/c/Map-GPZEN6YT.js", "./js/c/boot-HKSLNIME.js", "./js/c/chunk-3XL2MIHM.js", "./js/c/chunk-AQK33HZ2.js", "./js/c/chunk-DLBUXUOC.js", "./js/c/chunk-WGSFSCDS.js", "./js/c/gifenc-7LOQE3CB.js", "./js/c/html2canvas-XK4SJWUG.js", "./js/main.js"];
 self.addEventListener('install', (e) => {
   // v7.90 새 버전 파일은 브라우저 캐시를 건너뛰고 꼭 새로 받음
   // v1.0.1 이름에 지문(-ABCD1234)이 붙은 조각은 내용이 같으면 이름도 같음 → 예전 상자에 있으면 다시 받지 않고 옮겨 담음 (업데이트가 빨라짐)
@@ -59,9 +59,18 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== location.origin) return;
   const rel = url.pathname.slice(scopePath().length) || '/';
   const isNav = e.request.mode === 'navigate';
-  if (isNav || SHELL.has(rel) || rel.startsWith('/js/')) {
-    const key = isNav ? './index.html' : '.' + rel;
-    e.respondWith(caches.open(CACHE).then((c) => c.match(key, { ignoreSearch: true }).then((hit) => hit || fetch(e.request).then((res) => { if (res && res.ok && !isNav) c.put(key, res.clone()); return res; }).catch(() => c.match('./index.html')))));
+  // v1.6.28 앱 화면으로 가는 이동(폴더 주소 · index.html)만 앱 파일로 답함.
+  //  예전: 모든 화면 이동을 index.html로 답해서, 정산유틸을 쓰는 폰에서 사진 보기 링크(photos.html?v=…)를 열면 사진 대신 정산유틸이 떴음
+  const appNav = isNav && (rel === '/' || rel === '/index.html');
+  if (appNav || (!isNav && (SHELL.has(rel) || rel.startsWith('/js/')))) {
+    const key = appNav ? './index.html' : '.' + rel;
+    e.respondWith(caches.open(CACHE).then((c) => c.match(key, { ignoreSearch: true }).then((hit) => hit || fetch(e.request).then((res) => { if (res && res.ok && !appNav) c.put(key, res.clone()); return res; }).catch(() => c.match('./index.html')))));
+    return;
+  }
+  if (isNav) { // 다른 화면(사진 보기 등): 인터넷 먼저 · 안 되면 받아 둔 같은 화면 · 그것도 없으면 짧은 안내 (앱 화면으로 바꾸지 않음)
+    const key = '.' + rel;
+    e.respondWith(fetch(e.request).then((res) => { if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(key, copy)).catch(() => {}); } return res; })
+      .catch(() => caches.open(CACHE).then((c) => c.match(key, { ignoreSearch: true })).then((r) => r || new Response('<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>연결 안 됨</title><body style="font-family:system-ui,sans-serif;padding:28px;line-height:1.6"><h1 style="font-size:18px">인터넷에 연결되어 있지 않아 열지 못했습니다</h1><p>연결한 뒤 다시 열어 주세요.</p></body></html>', { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } }))));
     return;
   }
   e.respondWith(
