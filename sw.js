@@ -1,5 +1,5 @@
-const CACHE = 'daedeok-settlement-v1.6.36-b11210017';
-const ASSETS = ["./", "./index.html", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./js/c/BrokerSeed-FBCJJJZM.js", "./js/c/Changelog-7J3YB4CS.js", "./js/c/Map-KKJILZBW.js", "./js/c/boot-HHAJAXDK.js", "./js/c/chunk-AQK33HZ2.js", "./js/c/chunk-RR5IHSWD.js", "./js/c/chunk-URYYYTOA.js", "./js/c/chunk-WGSFSCDS.js", "./js/c/gifenc-7LOQE3CB.js", "./js/c/html2canvas-XK4SJWUG.js", "./js/main.js"];
+const CACHE = 'daedeok-settlement-v1.6.38-b11211217';
+const ASSETS = ["./", "./index.html", "./styles.css", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./js/c/BrokerSeed-FBCJJJZM.js", "./js/c/Changelog-N5HSMZRR.js", "./js/c/Map-ODN5KBS4.js", "./js/c/boot-BTDURCZM.js", "./js/c/chunk-5PBN3Q4R.js", "./js/c/chunk-AQK33HZ2.js", "./js/c/chunk-WGSFSCDS.js", "./js/c/chunk-ZE3FJT7R.js", "./js/c/gifenc-7LOQE3CB.js", "./js/c/html2canvas-XK4SJWUG.js", "./js/main.js"];
 self.addEventListener('install', (e) => {
   // v7.90 새 버전 파일은 브라우저 캐시를 건너뛰고 꼭 새로 받음
   // v1.0.1 이름에 지문(-ABCD1234)이 붙은 조각은 내용이 같으면 이름도 같음 → 예전 상자에 있으면 다시 받지 않고 옮겨 담음 (업데이트가 빨라짐)
